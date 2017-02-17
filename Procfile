@@ -1,1 +1,1 @@
-web: python firstServer.py
+clock: python webscrap.py
