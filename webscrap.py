@@ -145,7 +145,7 @@ def insert_data(date,buses):
     for bus in buses:
         print(Database().push(date,bus.__dict__))
 
-@sched.scheduled_job('interval', minutes=1)
+@sched.scheduled_job('interval', minutes=59)
 def main():
     print("fetch 23")
     new_rbus_list = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=23-Feb-2017&src=Pune&dst=Indore");
