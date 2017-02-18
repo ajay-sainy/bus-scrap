@@ -1,6 +1,8 @@
 import pyrebase
 import json
 import datetime as dt
+import logging
+logging.basicConfig()
 
 def current_date():    
     return dt.datetime.now().strftime("%d-%b-%Y")
