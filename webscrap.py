@@ -17,11 +17,11 @@ class DataGenerator:
     def get_red_bus_list(self):
         print("Fetching data from source")
         json_data = self.fetch_data(self.red_bus_url)
-        
+        print("Fetching data from source 1")
         red_bus_list = []
         if json_data == self.not_found_error:
             return red_bus_list 
-                
+        print("Fetching data from source 2")        
         for data in json_data["SRD"]:
             for r in data["RIN"]:
                 for inv in r["InvList"]:
@@ -30,7 +30,7 @@ class DataGenerator:
                     deptime = inv["DepTime"]
                     bus = RedBus(t_name,fare,deptime)
                     red_bus_list.append(bus)
-
+        print("Fetching data from source 3")
         return red_bus_list
 
     def fetch_data(self,url):    
@@ -39,6 +39,7 @@ class DataGenerator:
             response = urlopen(url).read().decode('utf8')                    
             return json.loads(response)
         except:
+            print("Exception")
             return self.not_found_error
 
 class RedBus():
