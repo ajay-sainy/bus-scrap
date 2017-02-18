@@ -30,7 +30,8 @@ class DataGenerator:
                     t_name = inv["Tvs"]
                     fare = float(inv["MinFare"])                
                     deptime = inv["DepTime"]
-                    bus = RedBus(t_name,fare,deptime)
+                    aseats = inv["NSA"]
+                    bus = RedBus(t_name,fare,deptime,aseats)
                     red_bus_list.append(bus)
        
         return red_bus_list
@@ -51,14 +52,16 @@ class RedBus():
     time = ""
     provider = ""
     deptime = ""
+    available_seats = 0
     
-    def __init__(self,tname,fare,deptime):
+    def __init__(self,tname,fare,deptime,avseats):
         self.travels_name = tname
         self.fare = fare
         self.time = current_time()
         self.date = current_date()
         self.provider = "redus"
         self.deptime = deptime
+        self.available_seats = avseats
 
 class Database:
     def fetch(self,provider):
@@ -142,7 +145,7 @@ def insert_data(date,buses):
     for bus in buses:
         print(Database().push(date,bus.__dict__))
 
-sched.scheduled_job('interval', hours=1)
+sched.scheduled_job('interval', minutes=1)
 def main():
     print("fetch 23")
     new_rbus_list = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=23-Feb-2017&src=Pune&dst=Indore");
