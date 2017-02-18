@@ -13,17 +13,17 @@ def current_time():
 class DataGenerator:
     not_found_error = "Not Found"    
     today_date = current_date()    
-    #red_bus_url = "https://www.redbus.in/search/result?fromCity=130&toCity=313&doj="+today_date+"&src=Pune&dst=Indore"
-    red_bus_url = "https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=18-Feb-2017&src=Pune&dst=Indore"
-        
-    def get_red_bus_list(self):
+    red_bus_url = "https://www.redbus.in/search/result?fromCity=130&toCity=313&doj="+today_date+"&src=Pune&dst=Indore"
+    #red_bus_url = "https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=18-Feb-2017&src=Pune&dst=Indore"
+    
+            
+    
+    def get_red_bus_list(self,url):
         print("Fetching data from source")
-        json_data = self.fetch_data(self.red_bus_url)
-        print("Fetching data from source 1")
+        json_data = self.fetch_data(url)
         red_bus_list = []
         if json_data == self.not_found_error:
             return red_bus_list 
-        print("Fetching data from source 2")        
         for data in json_data["SRD"]:
             for r in data["RIN"]:
                 for inv in r["InvList"]:
@@ -32,7 +32,7 @@ class DataGenerator:
                     deptime = inv["DepTime"]
                     bus = RedBus(t_name,fare,deptime)
                     red_bus_list.append(bus)
-        print("Fetching data from source 3")
+       
         return red_bus_list
 
     def fetch_data(self,url):    
@@ -136,14 +136,24 @@ def get_changed_buses(oldbuses,newbuses):
 from apscheduler.schedulers.blocking import BlockingScheduler
 sched = BlockingScheduler()
 
-@sched.scheduled_job('interval', minutes=1)
+
+def insert_data(date,buses):
+    print("pushing {} data to database".format(str(len(buses))))
+    for bus in buses:
+        print(Database().push(date,bus.__dict__))
+
+sched.scheduled_job('interval', hours=1)
 def main():
-    print("main started")
-    new_rbus_list = DataGenerator().get_red_bus_list();
-    old_rbus_list = Database().fetch("redbus")    
-    changed_buses = get_changed_buses(old_rbus_list,new_rbus_list)
-    print("pushing {} data to database".format(str(len(changed_buses))))
-    for bus in changed_buses:
-        print(Database().push("redbus",bus.__dict__))
+    print("fetch 23")
+    new_rbus_list = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=23-Feb-2017&src=Pune&dst=Indore");
+    insert_data("23-02-17",new_rbus_list)
+    print("fetch 24")
+    new_rbus_list1 = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=24-Feb-2017&src=Pune&dst=Indore");
+    insert_data("24-02-17",new_rbus_list1)
+    print("fetch 25")
+    new_rbus_list2 = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=25-Feb-2017&src=Pune&dst=Indore");
+    insert_data("25-02-17",new_rbus_list2)
+    #old_rbus_list = Database().fetch("redbus")    
+    #changed_buses = get_changed_buses(old_rbus_list,new_rbus_list)
 
 sched.start()
