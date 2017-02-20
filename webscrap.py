@@ -10,6 +10,9 @@ def current_date():
 def current_time():
     return dt.datetime.now().strftime("%H:%M:%S")
 
+def current_timestamp():
+    return dt.datetime.now().strftime("%d-%b-%Y %H:%M:%S")
+
 class DataGenerator:
     not_found_error = "Not Found"    
     today_date = current_date()    
@@ -48,9 +51,8 @@ class DataGenerator:
 
 class RedBus():
     travels_name = ""
-    fare = 0
-    date = ""
-    time = ""
+    fare = 0    
+    timestamp = ""
     provider = ""
     deptime = ""
     available_seats = 0
@@ -58,13 +60,13 @@ class RedBus():
     
     def __init__(self,tname,fare,deptime,avseats,rtId):
         self.travels_name = tname
-        self.fare = fare
-        self.time = current_time()
-        self.date = current_date()
-        self.provider = "redus"
+        self.fare = fare        
+        self.timestamp = current_timestamp()
+        self.provider = "redbus"
         self.deptime = deptime
         self.available_seats = avseats
         self.rtId = rtId
+        
 class Database:
     def fetch(self,provider):
         print("Fetching data from Database")
@@ -147,7 +149,7 @@ def insert_data(date,buses):
     for bus in buses:
         print(Database().push(date,bus.rtId,bus.__dict__))
 
-@sched.scheduled_job('interval', minutes=60)
+#@sched.scheduled_job('interval', minutes=60)
 def main():
     print("fetch 23")
     new_rbus_list = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=23-Feb-2017&src=Pune&dst=Indore");
@@ -161,4 +163,5 @@ def main():
     #old_rbus_list = Database().fetch("redbus")    
     #changed_buses = get_changed_buses(old_rbus_list,new_rbus_list)
 
-sched.start()
+#sched.start()
+main()
