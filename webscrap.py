@@ -31,7 +31,8 @@ class DataGenerator:
                     fare = float(inv["MinFare"])                
                     deptime = inv["DepTime"]
                     aseats = inv["NSA"]
-                    bus = RedBus(t_name,fare,deptime,aseats)
+                    rtId = inv["RtId"]
+                    bus = RedBus(t_name,fare,deptime,aseats,rtId)
                     red_bus_list.append(bus)
        
         return red_bus_list
@@ -53,8 +54,9 @@ class RedBus():
     provider = ""
     deptime = ""
     available_seats = 0
+    rtId = ""
     
-    def __init__(self,tname,fare,deptime,avseats):
+    def __init__(self,tname,fare,deptime,avseats,rtId):
         self.travels_name = tname
         self.fare = fare
         self.time = current_time()
@@ -62,14 +64,14 @@ class RedBus():
         self.provider = "redus"
         self.deptime = deptime
         self.available_seats = avseats
-
+        self.rtId = rtId
 class Database:
     def fetch(self,provider):
         print("Fetching data from Database")
         return FireBase().fetch(provider)
     
-    def push(self,provider,data):
-        return FireBase().push(provider,data)
+    def push(self,provider,rtId,data):
+        return FireBase().push(provider,rtId,data)
         
 class FireBase:    
     config = {
@@ -100,8 +102,8 @@ class FireBase:
             
         return rbus_list
         
-    def push(self,provider,data):
-        return self.database.child(provider).push(data,self.user['idToken'])
+    def push(self,provider,rtId,data):
+        return self.database.child(provider+'/'+str(rtId)).push(data,self.user['idToken'])
 
 def get_changed_buses(oldbuses,newbuses):
     print("Comparing old and new buses")
@@ -143,7 +145,7 @@ sched = BlockingScheduler()
 def insert_data(date,buses):
     print("pushing {} data to database".format(str(len(buses))))
     for bus in buses:
-        print(Database().push(date,bus.__dict__))
+        print(Database().push(date,bus.rtId,bus.__dict__))
 
 @sched.scheduled_job('interval', minutes=59)
 def main():
