@@ -121,7 +121,25 @@ def get_changed_buses(oldbuses,newbuses):
 def compare_and_alert(old_buses,new_buses):
     changed_buses = get_changed_buses(old_buses,new_buses)
     if(len(changed_buses)>0):
+        #sendSMS("Check Fireabase")
         insert_data("Updated",changed_buses)
+        
+        
+def sendSMS(body_text):
+    from twilio.rest import TwilioRestClient
+    # put your own credentials here
+    ACCOUNT_SID = 'AC634a498527ec79aedd1bfcbb965cdb7f'
+    AUTH_TOKEN = 'afd24ef3764c6a4e734efb8e4520f6c1'
+
+    client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
+    client.messages.create(
+        to = '+918208722416',
+        from_ = '+12488502386',
+        body = body_text
+    )
+       
+
 
 def insert_data(date,buses):
     print("pushing {} data to database".format(str(len(buses))))
@@ -147,14 +165,12 @@ class RedBus():
 from apscheduler.schedulers.blocking import BlockingScheduler
 sched = BlockingScheduler()
        
-@sched.scheduled_job('interval', minutes=30)
+@sched.scheduled_job('interval', minutes=1)
 def main():    
     new_rbus_list = DataGenerator().get_red_bus_list("https://www.redbus.in/search/result?fromCity=130&toCity=313&doj=4-Mar-2017&src=Pune&dst=Indore");    
     
     old_rbus_list = Database().fetch("4-Mar-2017")    
    
-    for o in old_rbus_list:
-        print(o.available_seats)
     compare_and_alert(old_rbus_list ,new_rbus_list );
     
     #changed_buses = get_changed_buses(old_rbus_list,new_rbus_list)
